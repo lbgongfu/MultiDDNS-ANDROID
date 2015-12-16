@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/item_mgr_info"
+        android:orderInCategory="1"
+        android:title="@string/action_mgr_info"></item>
+
+    <item android:id="@+id/item_goto_check"
+        android:orderInCategory="2"
+        android:title="@string/action_goto_check"></item>
+</menu>

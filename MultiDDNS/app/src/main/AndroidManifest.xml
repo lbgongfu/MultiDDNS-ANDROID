@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="cn.lbgongfu.multiddns" >
+
+    <!-- To auto-complete the email text field in the login form with the user's emails -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_PROFILE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name=".LoginActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".MgrLoginActivity"
+            android:label="@string/title_activity_mgr_login" >
+        </activity>
+        <activity
+            android:name=".MgrRegisterStep1Activity"
+            android:label="@string/title_activity_mgr_register_step_1" >
+        </activity>
+        <activity
+            android:name=".MgrRegisterStep2Activity"
+            android:label="@string/title_activity_mgr_register_step_2" >
+        </activity>
+        <activity
+            android:name=".MgrRegisterStep3Activity"
+            android:label="@string/title_activity_mgr_register_step_3" >
+        </activity>
+        <activity
+            android:name=".UserListActivity"
+            android:label="@string/title_user_list"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
+        <activity
+            android:name=".UserDetailActivity"
+            android:label="@string/title_user_detail"
+            android:parentActivityName=".UserListActivity"
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="cn.lbgongfu.multiddns.UserListActivity" />
+        </activity>
+        <activity
+            android:name=".AddUserActivity"
+            android:label="@string/title_activity_add_user" >
+        </activity>
+        <activity
+            android:name=".EditUserDetailActivity"
+            android:label="@string/title_activity_edit_user_detail" >
+        </activity>
+        <activity
+            android:name=".MgrResetPasswordActivity"
+            android:label="@string/title_activity_mgr_update_password" >
+        </activity>
+        <activity
+            android:name=".MgrUpdatePasswordActivity"
+            android:label="@string/title_activity_mgr_update_password" >
+        </activity>
+        <activity
+            android:name=".MgrInfoActivity"
+            android:label="@string/title_activity_mgr_detail"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
+        <activity
+            android:name=".SelectGenderActivity"
+            android:label="@string/title_activity_select_gender" >
+        </activity>
+        <activity
+            android:name=".UserRenewActivity"
+            android:label="@string/title_activity_user_renew" >
+        </activity>
+        <activity
+            android:name=".SelectRenewTimeoutActivity"
+            android:label="@string/title_activity_select_renew_timeout" >
+        </activity>
+        <activity
+            android:name=".SelectDomainActivity"
+            android:label="@string/title_activity_select_domain" >
+        </activity>
+        <activity
+            android:name=".SelectParseSpanActivity"
+            android:label="@string/title_activity_select_parse_span" >
+        </activity>
+        <activity
+            android:name=".CheckPendingListActivity"
+            android:label="@string/title_activity_check_pending_list"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
+        <activity
+            android:name=".UpdateMgrDetailActivity"
+            android:label="@string/title_activity_update_mgr_detail" >
+        </activity>
+        <activity
+            android:name=".EditMgrDetailActivity"
+            android:label="@string/title_activity_edit_mgr_detail" >
+        </activity>
+    </application>
+
+</manifest>
