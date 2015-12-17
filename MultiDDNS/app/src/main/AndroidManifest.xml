@@ -106,6 +106,15 @@
             android:name=".EditMgrDetailActivity"
             android:label="@string/title_activity_edit_mgr_detail" >
         </activity>
+        <activity
+            android:name=".RechargeActivity"
+            android:label="@string/title_activity_recharge"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
+        <activity
+            android:name=".UserUpdatePasswordActivity"
+            android:label="@string/title_activity_user_update_password" >
+        </activity>
     </application>
 
 </manifest>

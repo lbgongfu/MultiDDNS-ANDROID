@@ -8,6 +8,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -61,16 +63,24 @@ public class UserRenewActivity extends AppCompatActivity {
             }
         });
 
-        Button mBtnComplete = (Button) findViewById(R.id.btn_complete);
-        mBtnComplete.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // TODO: 2015/12/14
-            }
-        });
-
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_complete, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.item_complete)
+        {
+            // TODO: 2015/12/17
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

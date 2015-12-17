@@ -87,6 +87,10 @@ public class UserDetailActivity extends AppCompatActivity {
         {
             startActivity(new Intent(this, UserRenewActivity.class));
         }
+        if (id == R.id.item_update_password)
+        {
+            startActivity(new Intent(this, UserUpdatePasswordActivity.class));
+        }
         return super.onOptionsItemSelected(item);
     }
 }

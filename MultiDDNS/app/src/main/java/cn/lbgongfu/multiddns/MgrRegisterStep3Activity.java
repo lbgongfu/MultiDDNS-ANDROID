@@ -9,7 +9,6 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 
 public class MgrRegisterStep3Activity extends AppCompatActivity {
-    public static final String KEY_GENDER = "gender";
     private EditText mFieldGender;
     private EditText mFieldPassword;
     private EditText mFieldPassword2;
@@ -52,7 +51,7 @@ public class MgrRegisterStep3Activity extends AppCompatActivity {
         switch (requestCode)
         {
             case 0:
-                mFieldGender.setText(data.getStringExtra(KEY_GENDER));
+                mFieldGender.setText(data.getStringExtra(Constants.KEY_SELECTED_GENDER));
                 break;
         }
         super.onActivityResult(requestCode, resultCode, data);

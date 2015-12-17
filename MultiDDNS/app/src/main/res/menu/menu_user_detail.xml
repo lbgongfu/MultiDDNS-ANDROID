@@ -2,6 +2,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="cn.lbgongfu.multiddns.UserDetailActivity">
-    <item android:id="@+id/item_renew" android:title="@string/title_renew"
-        android:orderInCategory="100" app:showAsAction="ifRoom" />
+    <item android:id="@+id/item_renew"
+        android:title="@string/action_renew"/>
+
+    <item android:id="@+id/item_update_password"
+        android:title="@string/action_update_password"></item>
 </menu>

@@ -27,7 +27,6 @@ public class EditUserDetailActivity extends AppCompatActivity {
     private UserLoginTask mAuthTask = null;
 
     // UI references.
-    private EditText mFieldPassword;
     private EditText mFieldParseSpan;
     private CheckBox mCheckRedirect;
     private EditText mFieldUrl;
@@ -39,8 +38,6 @@ public class EditUserDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_user_detail);
         // Set up the login form.
-        mFieldPassword = (EditText) findViewById(R.id.field_password);
-
         mFieldParseSpan = (EditText) findViewById(R.id.field_parse_span);
         mFieldParseSpan.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -101,10 +98,10 @@ public class EditUserDetailActivity extends AppCompatActivity {
         }
 
         // Reset errors.
-        mFieldPassword.setError(null);
+//        mFieldPassword.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mFieldPassword.getText().toString();
+//        String email = mFieldPassword.getText().toString();
 
         boolean cancel = false;
         View focusView = null;

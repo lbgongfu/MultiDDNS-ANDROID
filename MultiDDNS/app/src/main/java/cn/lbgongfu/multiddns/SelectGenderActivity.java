@@ -21,7 +21,7 @@ public class SelectGenderActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent data = new Intent();
-                data.putExtra(MgrRegisterStep3Activity.KEY_GENDER, getString(R.string.label_men));
+                data.putExtra(Constants.KEY_SELECTED_GENDER, getString(R.string.label_men));
                 setResult(0, data);
                 finish();
             }
@@ -32,7 +32,7 @@ public class SelectGenderActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent data = new Intent();
-                data.putExtra(MgrRegisterStep3Activity.KEY_GENDER, getString(R.string.label_women));
+                data.putExtra(Constants.KEY_SELECTED_GENDER, getString(R.string.label_women));
                 setResult(0, data);
                 finish();
             }

@@ -9,6 +9,8 @@
     <string name="action_sign_in">登陆</string>
     <string name="action_sign_in_short">登陆</string>
     <string name="action_mgr_register">注册管理员</string>
+    <string name="action_update_password">修改密码</string>
+    <string name="action_recharge">充值</string>
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_id">用户名无效</string>
     <string name="error_invalid_password">请输入密码</string>
@@ -29,7 +31,7 @@
     <string name="title_activity_mgr_register_step_2">填写验证码</string>
     <string name="title_activity_mgr_register_step_3">填写详细信息</string>
     <string name="title_activity_select_renew_timeout">选择续费时长</string>
-    <string name="title_renew">续费</string>
+    <string name="action_renew">续费</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
@@ -99,4 +101,6 @@
     <string name="title_activity_update_mgr_detail">修改管理员资料</string>
     <string name="title_activity_edit_mgr_detail">编辑资料</string>
     <string name="label_gender">性别</string>
+    <string name="title_activity_recharge">充值</string>
+    <string name="title_activity_user_update_password">修改密码</string>
 </resources>
