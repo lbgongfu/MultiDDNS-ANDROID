@@ -9,11 +9,25 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.Properties;
 
 /**
  * A login screen that offers login via email/password.
@@ -30,7 +44,7 @@ public class LoginActivity extends AppCompatActivity {
      * TODO: remove after connecting to a real authentication system.
      */
     private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "1111.ip71.cn:hello"
+            "admin:admin"
     };
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -47,6 +61,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         // Set up the login form.
         mFieldId = (EditText) findViewById(R.id.field_id);
         mFieldPassword = (EditText) findViewById(R.id.field_password);
@@ -106,7 +121,7 @@ public class LoginActivity extends AppCompatActivity {
             focusView = mFieldId;
             cancel = true;
         } else if (!isIdValid(id)) {
-            mFieldId.setError(getString(R.string.error_invalid_email));
+            mFieldId.setError(getString(R.string.error_invalid_id));
             focusView = mFieldId;
             cancel = true;
         }
@@ -169,7 +184,7 @@ public class LoginActivity extends AppCompatActivity {
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    private class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String mId;
         private final String mPassword;

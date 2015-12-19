@@ -50,7 +50,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/action_mgr"
                 android:id="@+id/btn_mgr_entry"
-                android:textColor="@color/colorAccent" />
+                android:textColor="@color/colorAccent"
+                android:layout_gravity="right" />
 
         </LinearLayout>
     </ScrollView>

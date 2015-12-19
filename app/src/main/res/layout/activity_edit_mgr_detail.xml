@@ -20,7 +20,8 @@
 
             <TableLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:stretchColumns="2">
 
                 <View
                     android:layout_height="1dip"
@@ -49,7 +50,7 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/field_nickname"
                         android:layout_column="2"
-                        android:background="@drawable/custom_field_bg" />
+                        android:background="@null" />
 
                 </TableRow>
 
@@ -70,15 +71,16 @@
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:text="@string/label_gender"
                         android:id="@+id/textView3"
-                        android:layout_column="0" />
+                        android:layout_column="0"/>
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:text="@string/label_men"
                         android:id="@+id/text_gender"
-                        android:layout_column="2" />
+                        android:layout_column="2"
+                        android:drawableRight="@mipmap/ic_chevron_right_black_24dp"/>
                 </TableRow>
 
                 <View
@@ -105,7 +107,7 @@
                         android:ems="10"
                         android:id="@+id/field_email"
                         android:layout_column="2"
-                        android:background="@drawable/custom_field_bg" />
+                        android:background="@null" />
                 </TableRow>
 
                 <View
@@ -132,7 +134,7 @@
                         android:ems="10"
                         android:id="@+id/field_mobile"
                         android:layout_column="2"
-                        android:background="@drawable/custom_field_bg" />
+                        android:background="@null" />
                 </TableRow>
 
                 <View

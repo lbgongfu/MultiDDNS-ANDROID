@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,6 +37,7 @@ public class MgrLoginActivity extends AppCompatActivity {
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
+    private AsyncTask mFetchImgAuthTask = null;
 
     // UI references.
     private EditText mFieldId;
@@ -59,7 +61,7 @@ public class MgrLoginActivity extends AppCompatActivity {
         mBtnGetAuthCode.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO
+                fetchImgAuthCode();
             }
         });
 
@@ -93,6 +95,31 @@ public class MgrLoginActivity extends AppCompatActivity {
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+    }
+
+    private void fetchImgAuthCode() {
+        if (mFetchImgAuthTask == null || mFetchImgAuthTask.getStatus() == AsyncTask.Status.FINISHED)
+        {
+            mFetchImgAuthTask = new AsyncTask<Void, Void, Bitmap>()
+            {
+                @Override
+                protected Bitmap doInBackground(Void... params) {
+                    // TODO: 2015/12/19
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Bitmap bitmap) {
+                    if (bitmap != null)
+                        mImgAuthCode.setImageBitmap(bitmap);
+                }
+
+                @Override
+                protected void onCancelled() {
+                    mFetchImgAuthTask = null;
+                }
+            }.execute((Void)null);
+        }
     }
 
     /**
@@ -192,8 +219,7 @@ public class MgrLoginActivity extends AppCompatActivity {
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
+    private class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
         private final String mId;
         private final String mPassword;
         private final String mAuthCode;

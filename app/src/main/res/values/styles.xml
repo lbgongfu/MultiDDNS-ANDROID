@@ -17,6 +17,7 @@
     <style name="style_table_row">
         <item name="android:paddingTop">@dimen/padding_vertical</item>
         <item name="android:paddingBottom">@dimen/padding_vertical</item>
+        <item name="android:background">@drawable/custom_item</item>
     </style>
 
 </resources>
