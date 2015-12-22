@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/MultiDDNS-ANDROID.iml" filepath="$PROJECT_DIR$/MultiDDNS-ANDROID.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/services/services.iml" filepath="$PROJECT_DIR$/services/services.iml" />
+      <module fileurl="file://$PROJECT_DIR$/services/services.iml" filepath="$PROJECT_DIR$/services/services.iml" />
     </modules>
   </component>
 </project>
