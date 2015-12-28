@@ -11,12 +11,14 @@
     <string name="action_mgr_register">注册管理员</string>
     <string name="action_update_password">修改密码</string>
     <string name="action_recharge">充值</string>
+    <string name="action_quit">退出</string>
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_id">用户名无效</string>
     <string name="error_invalid_password">请输入密码</string>
     <string name="error_incorrect_password">密码不正确</string>
     <string name="error_incorrect_id_or_password">用户名或密码不正确</string>
     <string name="error_field_required">不能为空</string>
+    <string name="error_login">登入失败</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
@@ -32,6 +34,7 @@
     <string name="title_activity_mgr_register_step_3">填写详细信息</string>
     <string name="title_activity_select_renew_timeout">选择续费时长</string>
     <string name="action_renew">续费</string>
+    <string name="title_exit">退出程序</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
@@ -103,4 +106,10 @@
     <string name="label_gender">性别</string>
     <string name="title_activity_recharge">充值</string>
     <string name="title_activity_user_update_password">修改密码</string>
+
+    <string name="msg_ip_changed">IP改变为</string>
+    <string name="msg_current_ip">当前IP</string>
+    <string name="title_activity_login_succed">登陆成功</string>
+
+    <string name="msg_exit">是否在后台运行？</string>
 </resources>

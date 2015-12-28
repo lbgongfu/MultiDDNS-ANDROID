@@ -11,4 +11,5 @@ public class Constants {
     public static final String KEY_SELECTED_PARSE_SPAN = "selectedParseSpan";
     public static final String KEY_SELECTED_DOMAIN = "selectedDomain";
     public static final String KEY_SELECTED_GENDER = "selectedGender";
+    public static final String KEY_CURRENT_USER_ID = "currentUserID";
 }

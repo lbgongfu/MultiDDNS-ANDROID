@@ -6,7 +6,10 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/> -->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -98,10 +101,10 @@
             android:label="@string/title_activity_check_pending_list"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
-        <activity
-            android:name=".UpdateMgrDetailActivity"
-            android:label="@string/title_activity_update_mgr_detail" >
-        </activity>
+        <!-- <activity -->
+        <!-- android:name=".UpdateMgrDetailActivity" -->
+        <!-- android:label="@string/title_activity_update_mgr_detail" > -->
+        <!-- </activity> -->
         <activity
             android:name=".EditMgrDetailActivity"
             android:label="@string/title_activity_edit_mgr_detail" >
@@ -114,6 +117,17 @@
         <activity
             android:name=".UserUpdatePasswordActivity"
             android:label="@string/title_activity_user_update_password" >
+        </activity>
+
+        <service
+            android:name=".DDNSService"
+            android:exported="false" >
+        </service>
+
+        <activity
+            android:name=".LoginSucceedActivity"
+            android:label="@string/title_activity_login_succed"
+            android:theme="@style/AppTheme.NoActionBar" >
         </activity>
     </application>
 

@@ -3,11 +3,16 @@ package cn.lbgongfu.multiddns;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +20,9 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.example.MAPI;
+import com.example.MDDNS;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -28,6 +36,8 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Properties;
+
+import cn.lbgongfu.multiddns.utils.NotificationHelper;
 
 /**
  * A login screen that offers login via email/password.
@@ -44,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
      * TODO: remove after connecting to a real authentication system.
      */
     private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "admin:admin"
+            "1111.ip71.cn", "aaaa"
     };
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -60,11 +70,19 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (LoginSucceedActivity.CURRENT_USER_ID != null)
+        {
+            gotoSucceed();
+            finish();
+        }
+
         setContentView(R.layout.activity_login);
 
         // Set up the login form.
         mFieldId = (EditText) findViewById(R.id.field_id);
+        mFieldId.setText(DUMMY_CREDENTIALS[0]);
         mFieldPassword = (EditText) findViewById(R.id.field_password);
+        mFieldPassword.setText(DUMMY_CREDENTIALS[1]);
 
         Button mBtnLogin = (Button) findViewById(R.id.btn_login);
         mBtnLogin.setOnClickListener(new OnClickListener() {
@@ -85,6 +103,10 @@ public class LoginActivity extends AppCompatActivity {
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        String gsLocal_1 = getApplicationContext().getFilesDir() + File.separator;
+        MAPI.INITIALIZE(gsLocal_1, "114.215.194.168", 0);//1999);
+        MDDNS.INITIALIZE(gsLocal_1, android.os.Build.MODEL);
     }
 
     /**
@@ -188,6 +210,7 @@ public class LoginActivity extends AppCompatActivity {
 
         private final String mId;
         private final String mPassword;
+        private String mErrorMsg;
 
         UserLoginTask(String id, String password) {
             mId = id;
@@ -196,23 +219,15 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
+            String result = MDDNS.DomainUserLogin(mId, mPassword);
+            if ("ok".equals(result)) {
+                return true;
             }
-
-//            for (String credential : DUMMY_CREDENTIALS) {
-//                String[] pieces = credential.split(":");
-//                if (pieces[0].equals(mId)) {
-//                    // Account exists, return true if the password matches.
-//                    return pieces[1].equals(mPassword);
-//                }
-//            }
-            return true;
+            else
+            {
+                mErrorMsg = result;
+            }
+            return false;
         }
 
         @Override
@@ -221,10 +236,11 @@ public class LoginActivity extends AppCompatActivity {
             showProgress(false);
 
             if (success) {
-                startActivity(new Intent(LoginActivity.this, UserDetailActivity.class));
+                LoginSucceedActivity.CURRENT_USER_ID = mId;
+                gotoSucceed();
                 finish();
             } else {
-                Toast.makeText(LoginActivity.this, getString(R.string.error_incorrect_id_or_password), Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, getString(R.string.error_login) + "\n" + mErrorMsg, Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -234,5 +250,11 @@ public class LoginActivity extends AppCompatActivity {
             showProgress(false);
         }
     }
+
+    private void gotoSucceed() {
+        Intent intent = new Intent(LoginActivity.this, LoginSucceedActivity.class);
+        startActivity(intent);
+    }
+
 }
 
