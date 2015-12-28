@@ -4,17 +4,28 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
+
+import com.example.MDDNS;
+
+import java.io.File;
 
 /**
  * A login screen that offers login via email/password.
@@ -46,16 +57,23 @@ public class MgrLoginActivity extends AppCompatActivity {
     private ImageView mImgAuthCode;
     private View mProgressView;
     private View mLoginFormView;
+    private SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mgr_login);
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         // Set up the login form.
         mFieldId = (EditText) findViewById(R.id.field_id);
+        mFieldId.setText(preferences.getString(getString(R.string.key_mgr_id), ""));
         mFieldPassword = (EditText) findViewById(R.id.field_password);
+        if (preferences.getBoolean(getString(R.string.key_remember_password), false))
+            mFieldPassword.setText(preferences.getString(getString(R.string.key_mgr_password), ""));
         mFieldAuthCode = (EditText) findViewById(R.id.field_auth_code);
         mImgAuthCode = (ImageView) findViewById(R.id.img_auth_code);
+        fetchImgAuthCode();
 
         Button mBtnGetAuthCode = (Button) findViewById(R.id.btn_get_auth_code);
         mBtnGetAuthCode.setOnClickListener(new OnClickListener() {
@@ -100,18 +118,20 @@ public class MgrLoginActivity extends AppCompatActivity {
     private void fetchImgAuthCode() {
         if (mFetchImgAuthTask == null || mFetchImgAuthTask.getStatus() == AsyncTask.Status.FINISHED)
         {
-            mFetchImgAuthTask = new AsyncTask<Void, Void, Bitmap>()
+            mFetchImgAuthTask = new AsyncTask<Void, Void, Drawable>()
             {
                 @Override
-                protected Bitmap doInBackground(Void... params) {
-                    // TODO: 2015/12/19
-                    return null;
+                protected Drawable doInBackground(Void... params) {
+                    String imagePath = MDDNS.GetVerifyCode();
+                    Log.d(MgrLoginActivity.class.getName(), "Image auth code path is " + imagePath);
+                    Drawable drawable = BitmapDrawable.createFromPath(imagePath);
+                    return drawable;
                 }
 
                 @Override
-                protected void onPostExecute(Bitmap bitmap) {
-                    if (bitmap != null)
-                        mImgAuthCode.setImageBitmap(bitmap);
+                protected void onPostExecute(Drawable drawable) {
+                    if (drawable != null)
+                        mImgAuthCode.setImageDrawable(drawable);
                 }
 
                 @Override
@@ -223,6 +243,7 @@ public class MgrLoginActivity extends AppCompatActivity {
         private final String mId;
         private final String mPassword;
         private final String mAuthCode;
+        private String mErrorMsg = "no error";
 
         UserLoginTask(String id, String password, String authCode) {
             mId = id;
@@ -232,9 +253,18 @@ public class MgrLoginActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            return true;
+            String result = MDDNS.ManageLoginServer(mId, mPassword, mAuthCode);
+            if ("ok".equals(result))
+            {
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putString(getString(R.string.key_mgr_id), mId);
+                editor.putString(getString(R.string.key_mgr_password), mPassword);
+                editor.commit();
+                return true;
+            }
+            else
+                mErrorMsg = result;
+            return false;
         }
 
         @Override
@@ -243,11 +273,12 @@ public class MgrLoginActivity extends AppCompatActivity {
             showProgress(false);
 
             if (success) {
+                Intent intent = new Intent(MgrLoginActivity.this, UserListActivity.class);
+                intent.putExtra(getString(R.string.extra_mgr_id), mId);
+                startActivity(intent);
                 finish();
-                startActivity(new Intent(MgrLoginActivity.this, UserListActivity.class));
             } else {
-//                mPasswordView.setError(getString(R.string.error_incorrect_password));
-//                mPasswordView.requestFocus();
+                Toast.makeText(MgrLoginActivity.this, getString(R.string.error_login) + "\n" + mErrorMsg, Toast.LENGTH_SHORT).show();
             }
         }
 

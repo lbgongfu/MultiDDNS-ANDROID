@@ -87,7 +87,7 @@ public class LoginSucceedActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean runInBg = preferences.getBoolean("check_run_background", false);
+        boolean runInBg = preferences.getBoolean(getString(R.string.key_run_in_background), false);
         if (runInBg)
         {
             LoginSucceedActivity.super.onBackPressed();

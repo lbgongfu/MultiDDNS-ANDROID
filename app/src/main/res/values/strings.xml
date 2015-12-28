@@ -176,4 +176,12 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
+    <string name="key_remember_password">key_remember_password</string>
+    <string name="key_auto_login">key_auto_login</string>
+    <string name="key_run_in_background">key_run_in_background</string>
+    <string name="key_mgr_id">key_mgr_id</string>
+    <string name="key_mgr_password">key_mgr_password</string>
+    <string name="key_user_id">key_user_id</string>
+    <string name="key_user_password">key_user_password</string>
+    <string name="extra_mgr_id">extra_mgr_id</string>
 </resources>

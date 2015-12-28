@@ -58,13 +58,6 @@ public class LoginActivity extends AppCompatActivity {
     private static final int REQUEST_READ_CONTACTS = 0;
 
     /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "1111.ip71.cn", "aaaa"
-    };
-    /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
@@ -84,19 +77,17 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean rememberMe = preferences.getBoolean("check_remember_me", false);
-        final boolean autoLogin = preferences.getBoolean("check_auto_login", false);
-        boolean runInBg = preferences.getBoolean("check_run_background", false);
+        boolean rememberMe = preferences.getBoolean(getString(R.string.key_remember_password), false);
+        final boolean autoLogin = preferences.getBoolean(getString(R.string.key_auto_login), false);
         Log.d(LoginActivity.class.getName(), "Remember me: " + rememberMe);
         Log.d(LoginActivity.class.getName(), "Auto login: " + autoLogin);
-        Log.d(LoginActivity.class.getName(), "Run in background: " + runInBg);
 
         // Set up the login form.
         mFieldId = (EditText) findViewById(R.id.field_id);
-        mFieldId.setText(preferences.getString(Constants.KEY_USERNAME, ""));
+        mFieldId.setText(preferences.getString(getString(R.string.key_user_id), ""));
         mFieldPassword = (EditText) findViewById(R.id.field_password);
         if (rememberMe)
-            mFieldPassword.setText(preferences.getString(Constants.KEY_USER_PASSWORD, ""));
+            mFieldPassword.setText(preferences.getString(getString(R.string.key_user_password), ""));
 
         Button mBtnLogin = (Button) findViewById(R.id.btn_login);
         mBtnLogin.setOnClickListener(new OnClickListener() {
@@ -111,6 +102,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(LoginActivity.this, MgrLoginActivity.class));
+                DDNSService.stop(LoginActivity.this);
                 finish();
             }
         });
@@ -269,8 +261,8 @@ public class LoginActivity extends AppCompatActivity {
             String result = MDDNS.DomainUserLogin(mId, mPassword);
             if ("ok".equals(result)) {
                 SharedPreferences.Editor editor = preferences.edit();
-                editor.putString(Constants.KEY_USERNAME, mId);
-                editor.putString(Constants.KEY_USER_PASSWORD, mPassword);
+                editor.putString(getString(R.string.key_user_id), mId);
+                editor.putString(getString(R.string.key_user_password), mPassword);
                 editor.commit();
                 return true;
             }
