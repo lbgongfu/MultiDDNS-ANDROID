@@ -6,15 +6,23 @@ import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -67,22 +75,28 @@ public class LoginActivity extends AppCompatActivity {
     private View mProgressView;
     private View mLoginFormView;
 
+    private SharedPreferences preferences;
+    private ServiceConnection connection;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (LoginSucceedActivity.CURRENT_USER_ID != null)
-        {
-            gotoSucceed();
-            finish();
-        }
-
         setContentView(R.layout.activity_login);
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean rememberMe = preferences.getBoolean("check_remember_me", false);
+        final boolean autoLogin = preferences.getBoolean("check_auto_login", false);
+        boolean runInBg = preferences.getBoolean("check_run_background", false);
+        Log.d(LoginActivity.class.getName(), "Remember me: " + rememberMe);
+        Log.d(LoginActivity.class.getName(), "Auto login: " + autoLogin);
+        Log.d(LoginActivity.class.getName(), "Run in background: " + runInBg);
 
         // Set up the login form.
         mFieldId = (EditText) findViewById(R.id.field_id);
-        mFieldId.setText(DUMMY_CREDENTIALS[0]);
+        mFieldId.setText(preferences.getString(Constants.KEY_USERNAME, ""));
         mFieldPassword = (EditText) findViewById(R.id.field_password);
-        mFieldPassword.setText(DUMMY_CREDENTIALS[1]);
+        if (rememberMe)
+            mFieldPassword.setText(preferences.getString(Constants.KEY_USER_PASSWORD, ""));
 
         Button mBtnLogin = (Button) findViewById(R.id.btn_login);
         mBtnLogin.setOnClickListener(new OnClickListener() {
@@ -104,9 +118,42 @@ public class LoginActivity extends AppCompatActivity {
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
-        String gsLocal_1 = getApplicationContext().getFilesDir() + File.separator;
-        MAPI.INITIALIZE(gsLocal_1, "114.215.194.168", 0);//1999);
-        MDDNS.INITIALIZE(gsLocal_1, android.os.Build.MODEL);
+        DDNSService.startActionHeartbeat(this, null);
+
+        connection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                DDNSService.SimpleBinder simpleBinder = (DDNSService.SimpleBinder) service;
+                if (simpleBinder.isLogin())
+                {
+                    gotoSucceed();
+                    finish();
+                }
+                else
+                {
+                    if (autoLogin)
+                        attemptLogin();
+                }
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+
+            }
+        };
+        bindService(new Intent(this, DDNSService.class), connection, BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void onBackPressed() {
+        DDNSService.stop(this);
+        super.onBackPressed();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(connection);
     }
 
     /**
@@ -221,6 +268,10 @@ public class LoginActivity extends AppCompatActivity {
         protected Boolean doInBackground(Void... params) {
             String result = MDDNS.DomainUserLogin(mId, mPassword);
             if ("ok".equals(result)) {
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putString(Constants.KEY_USERNAME, mId);
+                editor.putString(Constants.KEY_USER_PASSWORD, mPassword);
+                editor.commit();
                 return true;
             }
             else
@@ -236,7 +287,7 @@ public class LoginActivity extends AppCompatActivity {
             showProgress(false);
 
             if (success) {
-                LoginSucceedActivity.CURRENT_USER_ID = mId;
+                DDNSService.startActionHeartbeat(LoginActivity.this, mId);
                 gotoSucceed();
                 finish();
             } else {
@@ -255,6 +306,5 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent(LoginActivity.this, LoginSucceedActivity.class);
         startActivity(intent);
     }
-
 }
 
