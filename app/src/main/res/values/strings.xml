@@ -184,4 +184,5 @@
     <string name="key_user_id">key_user_id</string>
     <string name="key_user_password">key_user_password</string>
     <string name="extra_mgr_id">extra_mgr_id</string>
+    <string name="tip_back_pressed">再按一次退出程序</string>
 </resources>

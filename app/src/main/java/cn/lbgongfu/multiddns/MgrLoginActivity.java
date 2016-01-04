@@ -5,10 +5,8 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,9 +21,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.MDDNS;
-
-import java.io.File;
+import com.ddns.sdk.MDDNS;
 
 /**
  * A login screen that offers login via email/password.
@@ -44,6 +40,7 @@ public class MgrLoginActivity extends AppCompatActivity {
     private static final String[] DUMMY_CREDENTIALS = new String[]{
             "foo@example.com:hello", "bar@example.com:world"
     };
+    private static final String TAG = MgrLoginActivity.class.getName();
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -122,8 +119,8 @@ public class MgrLoginActivity extends AppCompatActivity {
             {
                 @Override
                 protected Drawable doInBackground(Void... params) {
-                    String imagePath = MDDNS.GetVerifyCode();
-                    Log.d(MgrLoginActivity.class.getName(), "Image auth code path is " + imagePath);
+                    String imagePath = MDDNS.READ_VERIFY_CODE_FILE();
+                    Log.d(TAG, "Image auth code path is " + imagePath);
                     Drawable drawable = BitmapDrawable.createFromPath(imagePath);
                     return drawable;
                 }
@@ -253,7 +250,8 @@ public class MgrLoginActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            String result = MDDNS.ManageLoginServer(mId, mPassword, mAuthCode);
+            String result = MDDNS.MANAGE_LOGIN_SERVER(mId, mPassword, mAuthCode);
+            Log.d(TAG, String.format("Id: %s, Password: %s, Code: %s.Result: %s", mId, mPassword, mAuthCode, result));
             if ("ok".equals(result))
             {
                 SharedPreferences.Editor editor = preferences.edit();

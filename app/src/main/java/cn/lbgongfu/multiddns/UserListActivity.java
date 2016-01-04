@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 
 /**
@@ -35,6 +36,7 @@ public class UserListActivity extends AppCompatActivity
      * device.
      */
     private boolean mTwoPane;
+    private int backPressedCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +70,18 @@ public class UserListActivity extends AppCompatActivity
         }
 
         // TODO: If exposing deep links into your app, handle intents here.
+    }
+
+    @Override
+    public void onBackPressed() {
+        backPressedCount++;
+        if (backPressedCount == 2)
+        {
+            DDNSService.stop(this);
+            super.onBackPressed();
+        }
+        else
+            Toast.makeText(this, getString(R.string.tip_back_pressed), Toast.LENGTH_SHORT).show();
     }
 
     @Override

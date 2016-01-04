@@ -3,9 +3,6 @@ package cn.lbgongfu.multiddns;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -13,39 +10,18 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.MAPI;
-import com.example.MDDNS;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.Writer;
-import java.util.Properties;
-
-import cn.lbgongfu.multiddns.utils.NotificationHelper;
+import com.ddns.sdk.MDDNS;
 
 /**
  * A login screen that offers login via email/password.
@@ -102,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(LoginActivity.this, MgrLoginActivity.class));
-                DDNSService.stop(LoginActivity.this);
+//                DDNSService.stop(LoginActivity.this);
                 finish();
             }
         });
@@ -258,7 +234,7 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            String result = MDDNS.DomainUserLogin(mId, mPassword);
+            String result = MDDNS.DOMAIN_NAME_ANALYZE(mId, mPassword);
             if ("ok".equals(result)) {
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putString(getString(R.string.key_user_id), mId);

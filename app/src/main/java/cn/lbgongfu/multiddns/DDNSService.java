@@ -5,13 +5,15 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.Context;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.example.MAPI;
-import com.example.MDDNS;
+import com.ddns.sdk.MAPI;
+import com.ddns.sdk.MDDNS;
 
 import java.io.File;
 
@@ -25,6 +27,8 @@ import cn.lbgongfu.multiddns.utils.NotificationHelper;
  * helper methods.
  */
 public class DDNSService extends Service {
+    private static final String TAG = DDNSService.class.getName();
+
     public class SimpleBinder extends Binder
     {
         private String currUsername;
@@ -124,13 +128,15 @@ public class DDNSService extends Service {
 
     @Override
     public void onDestroy() {
-        MDDNS.SetHeartBeatStart(0);
+        MDDNS.SYSTEM_CLOSE();
         super.onDestroy();
+        Log.d(TAG, "服务已终止");
     }
 
     private void MSYS_INITIALIZE(String projectName) {
         String gsLocal_1 = null;
-        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED) == true) {   // 判断SDCard是否存在 [当没有外挂SD卡时，内置ROM也被识别为存在sd卡]
+
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED) == true) {   // �ж�SDCard�Ƿ���� [��û�����SD��ʱ������ROMҲ��ʶ��Ϊ����sd��]
             gsLocal_1 = Environment.getExternalStorageDirectory().getAbsolutePath();
             gsLocal_1 += "/" + projectName + "/";
             File file = new File(gsLocal_1);
@@ -140,10 +146,12 @@ public class DDNSService extends Service {
         } else {
             gsLocal_1 = getApplicationContext().getFilesDir() + "/";
         }
-        MAPI.INITIALIZE(gsLocal_1, "114.215.194.168", 1999);
-        MDDNS.INITIALIZE(gsLocal_1, android.os.Build.MODEL);
+        MDDNS.INITIALIZE(1999, gsLocal_1, android.os.Build.MODEL, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
 
-        if (MAPI.RD_MEM_STRING("memory") == null){
+//MAPI.STRING(gsLocal_1);MAPI.STRING(gsLocal_2);
+
+//MAPI.WR_MEM_STRING("memory", "0");
+        if (MAPI.RD_MEM_STRING("memory") != "1"){
             MAPI.WR_MEM_STRING("memory", "1");
 
             MAPI.WR_MEM_STRING("userName", "1111.ip71.cn");
@@ -156,34 +164,27 @@ public class DDNSService extends Service {
     private void handleActionHeartbeat(String username) {
         simpleBinder.setCurrUsername(username);
         simpleBinder.setLogin(true);
-        MAPI.MessageListener(new MAPI.MessageListener() {
+        MDDNS.MessageListener(new MDDNS.MessageListener() {
             @Override
-            public void putListener(int length, byte[] in_data) {
-                final int g4Length = length;
-                final byte[] gpData = new byte[length];
-                MAPI.COPY_BUFF8(length, 0, in_data, 0, gpData);
-                switch (gpData[0]) {
+            public void putListener(int type, String gsLocal_1, String gsLocal_2) {
+                switch (type) {
                     case 'A':
-                        gsDebugText = String.format("下一心跳包%d秒", gpData[1]);
+                        gsDebugText = "下一次域名解析在" + gsLocal_1 + "秒后";
                         sendDebugText();
                         break;
                     case 'B':
-                        String gsLocal_2 = MAPI.IPADDR_STRING(MAPI.BUFF8_DWORD(1, gpData));
-                        if (gsLocal_2 != null && !gsLocal_2.equals(simpleBinder.getCurrIP())) {
-                            simpleBinder.setCurrIP(gsLocal_2);
-                            sendIPChanged(gsLocal_2);
-                            NotificationHelper.showIPChanged(DDNSService.this, gsLocal_2);
-                            gsDebugText = "IP地址更改为：" + gsLocal_2;
+                        if (gsLocal_1 != null && !gsLocal_1.equals(simpleBinder.getCurrIP())) {
+                            simpleBinder.setCurrIP(gsLocal_1);
+                            sendIPChanged(gsLocal_1);
+                            NotificationHelper.showIPChanged(DDNSService.this, gsLocal_1);
+                            gsDebugText = "IP地址更改为：" + gsLocal_1;
                             sendDebugText();
                         }
-                        break;
-                    default:
-                        MSYS_TEXT_DEBUG(g4Length, gpData);
                         break;
                 }
             }
         });
-        MDDNS.SetHeartBeatStart(1);
+        MDDNS.ENABLE_ANALYZE(1);
     }
 
     private void sendIPChanged(String newIP) {
@@ -201,40 +202,5 @@ public class DDNSService extends Service {
             intent.putExtra(Constants.EXTRA_DEBUG_TEXT, gsDebugText);
             sendBroadcast(intent);
         }
-    }
-
-    private void MSYS_TEXT_DEBUG(int length, byte[] in_data){
-        String gsLocal_1 = null;
-        switch (in_data[0]) {
-            case 'd':
-                gsLocal_1 = String.format("%02X ", in_data[1]);
-                break;
-            case 'w':
-                gsLocal_1 = String.format("%08X ", MAPI.BUFF8_DWORD(1, in_data));
-                break;
-            case 's':
-                gsLocal_1 = String.format("%08X ", MAPI.BUFF8_DWORD(1, in_data));
-                int g4Local_1 = (length - 1) / 2;
-                char[] gpLocal_2 = new char[g4Local_1];
-                int g4Local_2 = 0;
-                int g4Local_3 = 1;
-                do {
-                    gpLocal_2[g4Local_2] = (char) ((in_data[g4Local_3 + 1] << 8) | in_data[g4Local_3]);
-                    g4Local_3 += 2;
-                } while (++g4Local_2 < g4Local_1);
-                gsLocal_1 = new String(gpLocal_2);
-                break;
-            default:
-                gsLocal_1 = null;
-                break;
-        }
-        if (gsLocal_1 != null) {
-            if (gsDebugText != null) {
-                gsDebugText += gsLocal_1;
-            } else {
-                gsDebugText = gsLocal_1;
-            }
-        }
-        Log.d(DDNSService.class.getName(), gsDebugText);
     }
 }
