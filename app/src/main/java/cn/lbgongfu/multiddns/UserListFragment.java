@@ -1,13 +1,22 @@
 package cn.lbgongfu.multiddns;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.ddns.sdk.MDDNS;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.lbgongfu.multiddns.dummy.DummyContent;
+import cn.lbgongfu.multiddns.models.Domain;
 
 /**
  * A list fragment representing a list of Users. This fragment
@@ -36,6 +45,8 @@ public class UserListFragment extends ListFragment {
      * The current activated item position. Only used on tablets.
      */
     private int mActivatedPosition = ListView.INVALID_POSITION;
+    private AsyncTask<Void, Void, List<Domain>> mFetchUserListTask;
+    private List<Domain> mDomains;
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -46,7 +57,7 @@ public class UserListFragment extends ListFragment {
         /**
          * Callback for when an item has been selected.
          */
-        public void onItemSelected(String id);
+        public void onItemSelected(int id);
     }
 
     /**
@@ -55,7 +66,7 @@ public class UserListFragment extends ListFragment {
      */
     private static Callbacks sDummyCallbacks = new Callbacks() {
         @Override
-        public void onItemSelected(String id) {
+        public void onItemSelected(int id) {
         }
     };
 
@@ -69,13 +80,83 @@ public class UserListFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        updateUserList();
+    }
 
-        // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                DummyContent.ITEMS));
+    private void updateUserList() {
+        if (mFetchUserListTask == null || mFetchUserListTask.getStatus() == AsyncTask.Status.FINISHED)
+        {
+            mFetchUserListTask = new AsyncTask<Void, Void, List<Domain>>()
+            {
+
+                @Override
+                protected List<Domain> doInBackground(Void... params) {
+                    ArrayList<Domain> domains = new ArrayList<Domain>();
+                    Domain domain = null;
+                    main:for (int i = 0; i < 1000; i++)
+                    {
+                        domain = getDomain(i);
+                        if (domain == null) break main;
+                        domains.add(domain);
+                    }
+                    return domains;
+                }
+
+                @Override
+                protected void onPostExecute(List<Domain> domains) {
+                    mDomains = domains;
+                    setListAdapter(new ArrayAdapter<>(
+                        getActivity(),
+                        android.R.layout.simple_list_item_activated_1,
+                        android.R.id.text1, domains));
+                }
+
+                @Override
+                protected void onCancelled() {
+                    mFetchUserListTask = null;
+                }
+            }.execute((Void[]) null);
+        }
+    }
+
+    @Nullable
+    public static Domain getDomain(int id) {
+        Domain domain;
+        domain = new Domain();
+        domain.setId(id);
+        for (int j = 0; j < 8; j++)
+        {
+            String field = MDDNS.GET_USER_ITEM(id, j);
+            switch (j)
+            {
+                case 0:
+                    if (TextUtils.isEmpty(field))
+                        return null;
+                    domain.setDomain(field);
+                    break;
+                case 1:
+                    domain.setRegisterDate(field);
+                    break;
+                case 2:
+                    domain.setEffectiveDate(field);
+                    break;
+                case 3:
+                    domain.setActiveDate(field);
+                    break;
+                case 4:
+                    domain.setIp(field);
+                    break;
+                case 5:
+                    domain.setResolveInterval(field);
+                    break;
+                case 6:
+                    domain.setRedirectCheck(field);
+                    break;
+                case 7:
+                    domain.setRedirectURL(field);
+            }
+        }
+        return domain;
     }
 
     @Override
@@ -115,7 +196,7 @@ public class UserListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
+        mCallbacks.onItemSelected(mDomains.get(position).getId());
     }
 
     @Override

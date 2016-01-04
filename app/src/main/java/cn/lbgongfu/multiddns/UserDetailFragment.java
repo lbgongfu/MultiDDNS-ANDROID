@@ -1,6 +1,7 @@
 package cn.lbgongfu.multiddns;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import cn.lbgongfu.multiddns.dummy.DummyContent;
+import cn.lbgongfu.multiddns.models.Domain;
 
 /**
  * A fragment representing a single User detail screen.
@@ -23,11 +25,8 @@ public class UserDetailFragment extends Fragment {
      * represents.
      */
     public static final String ARG_ITEM_ID = "item_id";
-
-    /**
-     * The dummy content this fragment is presenting.
-     */
-    private DummyContent.DummyItem mItem;
+    private Domain mDomain;
+    private AsyncTask<Integer, Void, Domain> mFetchDomainTask;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -41,16 +40,39 @@ public class UserDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
-            // Load the dummy content specified by the fragment
-            // arguments. In a real-world scenario, use a Loader
-            // to load content from a content provider.
-            mItem = DummyContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+//            fetchDomain(getArguments().getInt(ARG_ITEM_ID));
+            mDomain = UserListFragment.getDomain(getArguments().getInt(ARG_ITEM_ID));
 
             Activity activity = this.getActivity();
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
             if (appBarLayout != null) {
-//                appBarLayout.setTitle(mItem.content);
+                appBarLayout.setTitle(mDomain.getDomain());
             }
+        }
+    }
+
+    private void fetchDomain(int id) {
+        if (mFetchDomainTask == null || mFetchDomainTask.getStatus() == AsyncTask.Status.FINISHED)
+        {
+            mFetchDomainTask = new AsyncTask<Integer, Void, Domain>()
+            {
+
+                @Override
+                protected Domain doInBackground(Integer... params) {
+                    int id = params[0];
+                    return UserListFragment.getDomain(id);
+                }
+
+                @Override
+                protected void onPostExecute(Domain domain) {
+                    mDomain = domain;
+                }
+
+                @Override
+                protected void onCancelled() {
+                    mFetchDomainTask = null;
+                }
+            }.execute(id);
         }
     }
 
@@ -58,12 +80,25 @@ public class UserDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_user_detail, container, false);
+        if (mDomain != null) {
+            TextView mTextDomain = (TextView) rootView.findViewById(R.id.text_domain);
+            TextView mTextRegisterDate = (TextView) rootView.findViewById(R.id.text_register_date);
+            TextView mTextEffectiveDate = (TextView) rootView.findViewById(R.id.text_effective_date);
+            TextView mTextActiveDate = (TextView) rootView.findViewById(R.id.text_active_date);
+            TextView mTextIP = (TextView) rootView.findViewById(R.id.text_curr_ip);
+            TextView mTextResolveInterval = (TextView) rootView.findViewById(R.id.text_resolve_interval);
+            TextView mTextRedirectCheck = (TextView) rootView.findViewById(R.id.text_redirect_check);
+            TextView mTextRedirectURL = (TextView) rootView.findViewById(R.id.text_redirect_url);
 
-        // Show the dummy content as text in a TextView.
-        if (mItem != null) {
-
+            mTextDomain.setText(mDomain.getDomain());
+            mTextRegisterDate.setText(mDomain.getRegisterDate());
+            mTextEffectiveDate.setText(mDomain.getEffectiveDate());
+            mTextActiveDate.setText(mDomain.getActiveDate());
+            mTextIP.setText(mDomain.getIp());
+            mTextResolveInterval.setText(mDomain.getResolveInterval());
+            mTextRedirectCheck.setText(mDomain.getRedirectCheck());
+            mTextRedirectURL.setText(mDomain.getRedirectURL());
         }
-
         return rootView;
     }
 }

@@ -35,7 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:id="@+id/text_username"
+                android:id="@+id/text_domain"
                 android:layout_column="2" />
         </TableRow>
 
@@ -85,7 +85,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:id="@+id/text_deadline"
+                android:id="@+id/text_effective_date"
                 android:layout_column="2" />
         </TableRow>
 
@@ -135,7 +135,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:id="@+id/text_live_date"
+                android:id="@+id/text_active_date"
                 android:layout_column="2" />
         </TableRow>
 
@@ -185,7 +185,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:id="@+id/text_parse_span"
+                android:id="@+id/text_resolve_interval"
                 android:layout_column="2" />
         </TableRow>
 
@@ -210,7 +210,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:id="@+id/text_verify"
+                android:id="@+id/text_redirect_check"
                 android:layout_column="2" />
         </TableRow>
 
@@ -235,7 +235,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:id="@+id/text_redirect"
+                android:id="@+id/text_redirect_url"
                 android:layout_column="2" />
         </TableRow>
 
