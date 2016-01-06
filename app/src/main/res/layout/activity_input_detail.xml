@@ -6,7 +6,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:orientation="vertical"
-    tools:context="cn.lbgongfu.multiddns.MgrRegisterStep3Activity">
+    tools:context="cn.lbgongfu.multiddns.InputDetailActivity">
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"

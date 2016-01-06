@@ -53,9 +53,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/field_auth_code"
+                        android:imeActionId="@+id/login"
+                        android:imeActionLabel="@string/action_sign_in_short"
+                        android:imeOptions="actionUnspecified"
                         android:hint="@string/prompt_auth_code"
                         android:ems="@integer/field_auth_code_ems"
-                        android:width="@dimen/field_auth_code_width" />
+                        android:width="@dimen/field_auth_code_width"
+                        android:maxLines="1"
+                        android:singleLine="true" />
 
                 </android.support.design.widget.TextInputLayout>
 

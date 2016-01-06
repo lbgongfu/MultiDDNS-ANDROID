@@ -3,8 +3,11 @@ package cn.lbgongfu.multiddns;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -14,62 +17,107 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ddns.sdk.MDDNS;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
+import cn.lbgongfu.multiddns.utils.NotificationHelper;
+
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity {
+public class StartDNSActivity extends AppCompatActivity {
 
-    /**
-     * Id to identity READ_CONTACTS permission request.
-     */
-    private static final int REQUEST_READ_CONTACTS = 0;
-
+    private static final String TAG = StartDNSActivity.class.getName();
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
+    private StartDNSTask mAuthTask = null;
 
     // UI references.
     private EditText mFieldId;
     private EditText mFieldPassword;
+    private TextView mTextIP;
+    private TextView mTextMsg;
+    private Button mBtnStartDNS;
     private View mProgressView;
     private View mLoginFormView;
+    private View mBillboard;
 
     private SharedPreferences preferences;
-    private ServiceConnection connection;
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null)
+            {
+                String action = intent.getAction();
+                if (Constants.ACTION_SEND_DEBUG_TEXT.equals(action))
+                {
+                    mTextMsg.setText(intent.getStringExtra(Constants.EXTRA_DEBUG_TEXT));
+                }
+                else if (Constants.ACTION_IP_CHANGED.equals(action))
+                    mTextIP.setText(intent.getStringExtra(Constants.EXTRA_NEW_IP));
+            }
+        }
+    };
+    private DDNSService.SimpleBinder simpleBinder;
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            simpleBinder = (DDNSService.SimpleBinder) service;
+            if (simpleBinder.isLogin())
+            {
+                simpleBinder.setSendDebugText(true);
+                mTextIP.setText(simpleBinder.getCurrIP());
+                mBillboard.setVisibility(View.VISIBLE);
+            }
+            else
+            {
+                if (preferences.getBoolean(getString(R.string.key_auto_login), false))
+                    attemptStartDNS();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
+    private int backPressedCount;
+    private Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_start_dns);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean rememberMe = preferences.getBoolean(getString(R.string.key_remember_password), false);
-        final boolean autoLogin = preferences.getBoolean(getString(R.string.key_auto_login), false);
-        Log.d(LoginActivity.class.getName(), "Remember me: " + rememberMe);
-        Log.d(LoginActivity.class.getName(), "Auto login: " + autoLogin);
 
-        // Set up the login form.
         mFieldId = (EditText) findViewById(R.id.field_id);
         mFieldId.setText(preferences.getString(getString(R.string.key_user_id), ""));
         mFieldPassword = (EditText) findViewById(R.id.field_password);
+        mTextIP = (TextView) findViewById(R.id.text_ip);
+        mTextMsg = (TextView) findViewById(R.id.text_msg);
         if (rememberMe)
             mFieldPassword.setText(preferences.getString(getString(R.string.key_user_password), ""));
+        mBillboard = findViewById(R.id.layout_msg);
 
-        Button mBtnLogin = (Button) findViewById(R.id.btn_login);
-        mBtnLogin.setOnClickListener(new OnClickListener() {
+        mBtnStartDNS = (Button) findViewById(R.id.btn_start_dns);
+        mBtnStartDNS.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptLogin();
+                attemptStartDNS();
             }
         });
 
@@ -77,9 +125,9 @@ public class LoginActivity extends AppCompatActivity {
         mBtnMgrEntry.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this, MgrLoginActivity.class));
+                startActivity(new Intent(StartDNSActivity.this, MgrLoginActivity.class));
 //                DDNSService.stop(LoginActivity.this);
-                finish();
+//                finish();
             }
         });
 
@@ -88,40 +136,68 @@ public class LoginActivity extends AppCompatActivity {
 
         DDNSService.startActionHeartbeat(this, null);
 
-        connection = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                DDNSService.SimpleBinder simpleBinder = (DDNSService.SimpleBinder) service;
-                if (simpleBinder.isLogin())
-                {
-                    gotoSucceed();
-                    finish();
-                }
-                else
-                {
-                    if (autoLogin)
-                        attemptLogin();
-                }
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-
-            }
-        };
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Constants.ACTION_SEND_DEBUG_TEXT);
+        filter.addAction(Constants.ACTION_IP_CHANGED);
+        registerReceiver(receiver, filter);
         bindService(new Intent(this, DDNSService.class), connection, BIND_AUTO_CREATE);
     }
 
     @Override
     public void onBackPressed() {
-        DDNSService.stop(this);
-        super.onBackPressed();
+        backPressedCount++;
+        if (backPressedCount == 2)
+        {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            boolean runInBg = preferences.getBoolean(getString(R.string.key_run_in_background), false);
+            if (runInBg)
+            {
+                StartDNSActivity.super.onBackPressed();
+            }
+            else
+            {
+                DDNSService.stop(this);
+                StartDNSActivity.super.onBackPressed();
+                NotificationHelper.clearIPChanged();
+            }
+        }
+        else
+        {
+            Toast.makeText(this, getString(R.string.tip_back_pressed), Toast.LENGTH_SHORT).show();
+            timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    backPressedCount = 0;
+                }
+            }, 3000);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_settings, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.item_settings)
+        {
+            startActivity(new Intent(this, SettingsActivity.class));
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unbindService(connection);
+        unregisterReceiver(receiver);
+        if (simpleBinder != null)
+            simpleBinder.setSendDebugText(false);
+        if (timer != null)
+            timer.cancel();
     }
 
     /**
@@ -129,7 +205,7 @@ public class LoginActivity extends AppCompatActivity {
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
-    private void attemptLogin() {
+    private void attemptStartDNS() {
         if (mAuthTask != null) {
             return;
         }
@@ -152,7 +228,6 @@ public class LoginActivity extends AppCompatActivity {
             cancel = true;
         }
 
-        // Check for a valid email address.
         if (TextUtils.isEmpty(id)) {
             mFieldId.setError(getString(R.string.error_field_required));
             focusView = mFieldId;
@@ -164,14 +239,10 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
             focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(id, password);
+            mAuthTask = new StartDNSTask(id, password);
             mAuthTask.execute((Void) null);
         }
     }
@@ -221,21 +292,25 @@ public class LoginActivity extends AppCompatActivity {
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    private class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    private class StartDNSTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String mId;
         private final String mPassword;
         private String mErrorMsg;
 
-        UserLoginTask(String id, String password) {
+        StartDNSTask(String id, String password) {
             mId = id;
             mPassword = password;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
+            if (simpleBinder != null)
+                simpleBinder.setLogin(false);
             String result = MDDNS.DOMAIN_NAME_ANALYZE(mId, mPassword);
             if ("ok".equals(result)) {
+                if (simpleBinder != null)
+                    simpleBinder.setLogin(true);
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putString(getString(R.string.key_user_id), mId);
                 editor.putString(getString(R.string.key_user_password), mPassword);
@@ -255,11 +330,17 @@ public class LoginActivity extends AppCompatActivity {
             showProgress(false);
 
             if (success) {
-                DDNSService.startActionHeartbeat(LoginActivity.this, mId);
-                gotoSucceed();
-                finish();
+                DDNSService.startActionHeartbeat(StartDNSActivity.this, mId);
+                unbindService(connection);
+                bindService(new Intent(StartDNSActivity.this, DDNSService.class), connection, BIND_AUTO_CREATE);
+//                gotoSucceed();
+//                finish();
             } else {
-                Toast.makeText(LoginActivity.this, getString(R.string.error_login) + "\n" + mErrorMsg, Toast.LENGTH_SHORT).show();
+                mTextIP.setText("");
+                mTextMsg.setText("");
+                mBillboard.setVisibility(View.GONE);
+                if (simpleBinder != null) simpleBinder.clear();
+                Toast.makeText(StartDNSActivity.this, getString(R.string.error_login) + "\n" + mErrorMsg, Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -270,8 +351,11 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * @deprecated
+     */
     private void gotoSucceed() {
-        Intent intent = new Intent(LoginActivity.this, LoginSucceedActivity.class);
+        Intent intent = new Intent(StartDNSActivity.this, LoginSucceedActivity.class);
         startActivity(intent);
     }
 }

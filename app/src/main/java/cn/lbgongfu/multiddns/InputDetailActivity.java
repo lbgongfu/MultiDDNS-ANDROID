@@ -6,9 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioGroup;
 
-public class MgrRegisterStep3Activity extends AppCompatActivity {
+public class InputDetailActivity extends AppCompatActivity {
     private EditText mFieldGender;
     private EditText mFieldPassword;
     private EditText mFieldPassword2;
@@ -16,20 +15,20 @@ public class MgrRegisterStep3Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_mgr_register_step3);
+        setContentView(R.layout.activity_input_detail);
 
         mFieldGender = (EditText) findViewById(R.id.field_gender);
         mFieldGender.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus)
-                    startActivityForResult(new Intent(MgrRegisterStep3Activity.this, SelectGenderActivity.class), 0);
+                    startActivityForResult(new Intent(InputDetailActivity.this, SelectGenderActivity.class), 0);
             }
         });
         mFieldGender.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(new Intent(MgrRegisterStep3Activity.this, SelectGenderActivity.class), 0);
+                startActivityForResult(new Intent(InputDetailActivity.this, SelectGenderActivity.class), 0);
             }
         });
         mFieldPassword = (EditText) findViewById(R.id.field_password);
@@ -40,7 +39,7 @@ public class MgrRegisterStep3Activity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //TODO
-                startActivity(new Intent(MgrRegisterStep3Activity.this, MgrLoginActivity.class));
+                startActivity(new Intent(InputDetailActivity.this, MgrLoginActivity.class));
                 finish();
             }
         });

@@ -6,6 +6,7 @@ package cn.lbgongfu.multiddns.models;
 public class Domain {
     private int id;
     private String domain;
+    private String password;
     private String registerDate;
     private String effectiveDate;
     private String activeDate;
@@ -84,6 +85,16 @@ public class Domain {
 
     public void setRedirectURL(String redirectURL) {
         this.redirectURL = redirectURL;
+    }
+
+    public String getPassword()
+    {
+        return password;
+    }
+
+    public void setPassword(String password)
+    {
+        this.password = password;
     }
 
     @Override

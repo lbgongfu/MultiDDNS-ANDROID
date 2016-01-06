@@ -71,6 +71,14 @@ public class DDNSService extends Service {
         {
             sendDebugText = isSendDebugText;
         }
+
+        public void clear()
+        {
+            setCurrIP("");
+            setLogin(false);
+            setSendDebugText(false);
+            setCurrUsername("");
+        }
     }
     private static final String ACTION_HEARTBEAT = "cn.lbgongfu.multiddns.action.heartbeat";
     private static final String EXTRA_USERNAME = "cn.lbgongfu.multiddns.extra.username";
@@ -93,7 +101,6 @@ public class DDNSService extends Service {
             intent.putExtra(EXTRA_USERNAME, username);
             context.startService(intent);
         }
-        Log.d(DDNSService.class.getName(), "服务已启动");
     }
 
     public static void stop(Context context)
@@ -106,10 +113,13 @@ public class DDNSService extends Service {
         super.onCreate();
         simpleBinder = new SimpleBinder();
         MSYS_INITIALIZE("MultiDDNS");
+        Log.d(DDNSService.class.getName(), "服务已启动");
     }
 
     @Override
     public IBinder onBind(Intent intent) {
+        if (!TextUtils.isEmpty(simpleBinder.getCurrIP()))
+            sendIPChanged(simpleBinder.getCurrIP());
         return simpleBinder;
     }
 

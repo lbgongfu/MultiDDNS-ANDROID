@@ -7,13 +7,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class MgrRegisterStep2Activity extends AppCompatActivity {
+public class VerifyEmailOrPhoneNumberActivity extends AppCompatActivity {
     private EditText mFieldAuthCode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_mgr_register_step2);
+        setContentView(R.layout.activity_verify_email_or_phone_number);
 
         mFieldAuthCode = (EditText) findViewById(R.id.field_auth_code);
 
@@ -30,10 +30,10 @@ public class MgrRegisterStep2Activity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
             //TODO
-            if (MgrRegisterStep1Activity.register)
-                startActivity(new Intent(MgrRegisterStep2Activity.this, MgrRegisterStep3Activity.class));
+            if (InputEmailOrPhoneNumberActivity.register)
+                startActivity(new Intent(VerifyEmailOrPhoneNumberActivity.this, InputDetailActivity.class));
             else
-                startActivity(new Intent(MgrRegisterStep2Activity.this, MgrResetPasswordActivity.class));
+                startActivity(new Intent(VerifyEmailOrPhoneNumberActivity.this, MgrResetPasswordActivity.class));
             finish();
             }
         });

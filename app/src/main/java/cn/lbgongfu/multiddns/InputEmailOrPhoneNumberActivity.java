@@ -20,7 +20,7 @@ import android.widget.ImageView;
 /**
  * A login screen that offers login via email/password.
  */
-public class MgrRegisterStep1Activity extends AppCompatActivity {
+public class InputEmailOrPhoneNumberActivity extends AppCompatActivity {
     //register==true表示用户正在注册，register==false表示用户正在找回密码
     public static boolean register = true;
 
@@ -51,7 +51,7 @@ public class MgrRegisterStep1Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_mgr_register_step_1);
+        setContentView(R.layout.activity_input_email_or_phone_number);
         // Set up the login form.
         mFieldId = (EditText) findViewById(R.id.field_id);
         mFieldAuthCode = (EditText) findViewById(R.id.field_auth_code);
@@ -219,7 +219,7 @@ public class MgrRegisterStep1Activity extends AppCompatActivity {
             showProgress(false);
 
             if (success) {
-                startActivity(new Intent(MgrRegisterStep1Activity.this, MgrRegisterStep2Activity.class));
+                startActivity(new Intent(InputEmailOrPhoneNumberActivity.this, VerifyEmailOrPhoneNumberActivity.class));
                 finish();
             } else {
 //                mPasswordView.setError(getString(R.string.error_incorrect_password));

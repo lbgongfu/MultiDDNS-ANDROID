@@ -124,7 +124,7 @@ public class UserListFragment extends ListFragment {
         Domain domain;
         domain = new Domain();
         domain.setId(id);
-        for (int j = 0; j < 8; j++)
+        for (int j = 0; j < 9; j++)
         {
             String field = MDDNS.GET_USER_ITEM(id, j);
             switch (j)
@@ -135,24 +135,27 @@ public class UserListFragment extends ListFragment {
                     domain.setDomain(field);
                     break;
                 case 1:
-                    domain.setRegisterDate(field);
+                    domain.setPassword(field);
                     break;
                 case 2:
-                    domain.setEffectiveDate(field);
+                    domain.setRegisterDate(field);
                     break;
                 case 3:
-                    domain.setActiveDate(field);
+                    domain.setEffectiveDate(field);
                     break;
                 case 4:
-                    domain.setIp(field);
+                    domain.setActiveDate(field);
                     break;
                 case 5:
-                    domain.setResolveInterval(field);
+                    domain.setIp(field);
                     break;
                 case 6:
-                    domain.setRedirectCheck(field);
+                    domain.setResolveInterval(field);
                     break;
                 case 7:
+                    domain.setRedirectCheck(field);
+                    break;
+                case 8:
                     domain.setRedirectURL(field);
             }
         }

@@ -13,11 +13,12 @@ import cn.lbgongfu.multiddns.R;
  * Created by gf on 2015/12/26.
  */
 public class NotificationHelper {
+    private static NotificationManager manager;
     private static final int NOTIFY_ID_IP_CHANGED = 0;
 
     public static void showIPChanged(Context context, String newIP)
     {
-        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
         mBuilder.setContentTitle(context.getString(R.string.app_name))
                 .setContentText(context.getString(R.string.msg_current_ip) + ": " + newIP)
@@ -29,5 +30,11 @@ public class NotificationHelper {
         Notification notification = mBuilder.build();
         notification.flags = Notification.FLAG_AUTO_CANCEL;
         manager.notify(NOTIFY_ID_IP_CHANGED, notification);
+    }
+
+    public static void clearIPChanged()
+    {
+        if (manager != null)
+            manager.cancel(NOTIFY_ID_IP_CHANGED);
     }
 }

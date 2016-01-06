@@ -82,6 +82,7 @@ public class UserDetailFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_user_detail, container, false);
         if (mDomain != null) {
             TextView mTextDomain = (TextView) rootView.findViewById(R.id.text_domain);
+            TextView mTextPassword = (TextView) rootView.findViewById(R.id.text_password);
             TextView mTextRegisterDate = (TextView) rootView.findViewById(R.id.text_register_date);
             TextView mTextEffectiveDate = (TextView) rootView.findViewById(R.id.text_effective_date);
             TextView mTextActiveDate = (TextView) rootView.findViewById(R.id.text_active_date);
@@ -91,6 +92,7 @@ public class UserDetailFragment extends Fragment {
             TextView mTextRedirectURL = (TextView) rootView.findViewById(R.id.text_redirect_url);
 
             mTextDomain.setText(mDomain.getDomain());
+            mTextPassword.setText(mDomain.getPassword());
             mTextRegisterDate.setText(mDomain.getRegisterDate());
             mTextEffectiveDate.setText(mDomain.getEffectiveDate());
             mTextActiveDate.setText(mDomain.getActiveDate());

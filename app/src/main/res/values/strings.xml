@@ -186,4 +186,6 @@
     <string name="extra_mgr_id">extra_mgr_id</string>
     <string name="tip_back_pressed">再按一次退出程序</string>
     <string name="action_start_resolve_domain">启动域名解析</string>
+    <string name="label_ip">当前IP：</string>
+    <string name="title_activity_login">Sign in</string>
 </resources>

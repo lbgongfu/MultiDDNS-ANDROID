@@ -2,6 +2,7 @@ package cn.lbgongfu.multiddns;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.support.design.widget.FloatingActionButton;
@@ -36,16 +37,15 @@ public class UserListActivity extends AppCompatActivity
      * device.
      */
     private boolean mTwoPane;
-    private int backPressedCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_app_bar);
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
+        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -73,18 +73,6 @@ public class UserListActivity extends AppCompatActivity
     }
 
     @Override
-    public void onBackPressed() {
-        backPressedCount++;
-        if (backPressedCount == 2)
-        {
-            DDNSService.stop(this);
-            super.onBackPressed();
-        }
-        else
-            Toast.makeText(this, getString(R.string.tip_back_pressed), Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         return super.onCreateOptionsMenu(menu);
@@ -99,6 +87,9 @@ public class UserListActivity extends AppCompatActivity
                 break;
             case R.id.item_goto_check:
                 startActivity(new Intent(this, CheckPendingListActivity.class));
+                break;
+            case android.R.id.home:
+                finish();
                 break;
             default:
                 break;
