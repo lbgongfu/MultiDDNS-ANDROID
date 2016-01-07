@@ -124,7 +124,7 @@ public class UserListFragment extends ListFragment {
         Domain domain;
         domain = new Domain();
         domain.setId(id);
-        for (int j = 0; j < 9; j++)
+        for (int j = 0; j < 10; j++)
         {
             String field = MDDNS.GET_USER_ITEM(id, j);
             switch (j)
@@ -157,6 +157,10 @@ public class UserListFragment extends ListFragment {
                     break;
                 case 8:
                     domain.setRedirectURL(field);
+                    break;
+                case 9:
+                    domain.setReference(field);
+                    break;
             }
         }
         return domain;

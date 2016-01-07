@@ -3,40 +3,38 @@ package cn.lbgongfu.multiddns;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.ddns.sdk.MDDNS;
+
+import cn.lbgongfu.multiddns.utils.FetchImgAuthCodeTask;
 
 /**
  * A login screen that offers login via email/password.
  */
 public class MgrUpdatePasswordActivity extends AppCompatActivity {
-
-    /**
-     * Id to identity READ_CONTACTS permission request.
-     */
-    private static final int REQUEST_READ_CONTACTS = 0;
-
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
+    private static final String TAG = MgrUpdatePasswordActivity.class.getName();
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
+    private UpdatePasswordTask mUpdatePasswordTask = null;
 
     // UI references.
     private EditText mFieldOldPassword;
@@ -46,6 +44,7 @@ public class MgrUpdatePasswordActivity extends AppCompatActivity {
     private ImageView mImgAuthCode;
     private View mProgressView;
     private View mLoginFormView;
+    private FetchImgAuthCodeTask mFetchImgAuthCodeTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,18 +55,52 @@ public class MgrUpdatePasswordActivity extends AppCompatActivity {
         mFieldNewPassword = (EditText) findViewById(R.id.field_new_password);
         mFieldPassword2 = (EditText) findViewById(R.id.field_password_copy);
         mFieldAuthCode = (EditText) findViewById(R.id.field_auth_code);
+        mFieldAuthCode.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+                if (id == R.id.next_step || id == EditorInfo.IME_NULL) {
+                    attemptLogin();
+                    return true;
+                }
+                return false;
+            }
+        });
         mImgAuthCode = (ImageView) findViewById(R.id.img_auth_code);
 
         Button mBtnGetAuthCode = (Button) findViewById(R.id.btn_get_auth_code);
         mBtnGetAuthCode.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO
+                fetchImgAuthCode();
             }
         });
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        fetchImgAuthCode();
+    }
+
+    private void fetchImgAuthCode() {
+        if (mFetchImgAuthCodeTask == null || mFetchImgAuthCodeTask.getStatus() == AsyncTask.Status.FINISHED)
+        {
+            showProgress(true);
+            mFetchImgAuthCodeTask = new FetchImgAuthCodeTask(this, mImgAuthCode) {
+                @Override
+                protected void onCancelled() {
+                    super.onCancelled();
+                    mFetchImgAuthCodeTask = null;
+                    showProgress(false);
+                }
+
+                @Override
+                protected void onPostExecute(Boolean success) {
+                    super.onPostExecute(success);
+                    mFetchImgAuthCodeTask = null;
+                    showProgress(false);
+                }
+            };
+        }
     }
 
     @Override
@@ -80,7 +113,6 @@ public class MgrUpdatePasswordActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.item_complete)
         {
-            // TODO: 2015/12/16
             attemptLogin();
         }
         return super.onOptionsItemSelected(item);
@@ -92,38 +124,59 @@ public class MgrUpdatePasswordActivity extends AppCompatActivity {
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-        if (mAuthTask != null) {
+        if (mUpdatePasswordTask != null) {
             return;
         }
 
         // Reset errors.
-//        mEmailView.setError(null);
-//        mPasswordView.setError(null);
+        mFieldOldPassword.setError(null);
+        mFieldNewPassword.setError(null);
+        mFieldPassword2.setError(null);
+        mFieldAuthCode.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mFieldOldPassword.getText().toString();
-        String password = mFieldNewPassword.getText().toString();
+        String oldPassword = mFieldOldPassword.getText().toString();
+        String newPassword = mFieldNewPassword.getText().toString();
+        String password2 = mFieldPassword2.getText().toString();
+        String authCode = mFieldAuthCode.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
-//        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-//            mPasswordView.setError(getString(R.string.error_invalid_password));
-//            focusView = mPasswordView;
-//            cancel = true;
-//        }
+        if (TextUtils.isEmpty(oldPassword))
+        {
+            cancel = true;
+            mFieldOldPassword.setError(getString(R.string.error_field_required));
+            focusView = mFieldOldPassword;
+        }
 
-        // Check for a valid email address.
-//        if (TextUtils.isEmpty(email)) {
-//            mEmailView.setError(getString(R.string.error_field_required));
-//            focusView = mEmailView;
-//            cancel = true;
-//        } else if (!isEmailValid(email)) {
-//            mEmailView.setError(getString(R.string.error_invalid_email));
-//            focusView = mEmailView;
-//            cancel = true;
-//        }
+        if (TextUtils.isEmpty(newPassword))
+        {
+            cancel = true;
+            mFieldNewPassword.setError(getString(R.string.error_field_required));
+            focusView = mFieldNewPassword;
+        }
+
+        if (TextUtils.isEmpty(password2))
+        {
+            cancel = true;
+            mFieldPassword2.setError(getString(R.string.error_field_required));
+            focusView = mFieldPassword2;
+        }
+
+        if (TextUtils.isEmpty(authCode))
+        {
+            cancel = true;
+            mFieldAuthCode.setError(getString(R.string.error_field_required));
+            focusView = mFieldAuthCode;
+        }
+
+        if (!cancel && !newPassword.equals(password2))
+        {
+            cancel = true;
+            mFieldPassword2.setError(getString(R.string.error_password_inconformity));
+            focusView = mFieldPassword2;
+        }
 
         if (cancel) {
             // There was an error; don't attempt login and focus the first
@@ -133,19 +186,9 @@ public class MgrUpdatePasswordActivity extends AppCompatActivity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+            mUpdatePasswordTask = new UpdatePasswordTask(oldPassword, newPassword, authCode);
+            mUpdatePasswordTask.execute((Void) null);
         }
-    }
-
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
     }
 
     /**
@@ -184,69 +227,48 @@ public class MgrUpdatePasswordActivity extends AppCompatActivity {
         }
     }
 
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
-    }
-
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class UpdatePasswordTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final String mEmail;
-        private final String mPassword;
+        private final String mOldPassword;
+        private final String mNewPassword;
+        private final String mAuthCode;
+        private String result;
 
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
+        UpdatePasswordTask(String oldPassword, String newPassword, String authCode) {
+            mOldPassword = oldPassword;
+            mNewPassword = newPassword;
+            mAuthCode = authCode;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
-            return true;
+            Log.d(TAG, String.format("Call method (MDDNS.CHANG_MANAGE_PASSWORD) with parameters (oldPassword=***, newPassword=***, authCode=%s)", mAuthCode));
+            result = MDDNS.CHANG_MANAGE_PASSWORD(mOldPassword, mNewPassword, mAuthCode);
+            Log.d(TAG, String.format("Call method (MDDNS.CHANG_MANAGE_PASSWORD) return %s)", result));
+            return "ok".equals(result);
         }
 
         @Override
         protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
+            mUpdatePasswordTask = null;
             showProgress(false);
 
             if (success) {
+                Toast.makeText(MgrUpdatePasswordActivity.this, getString(R.string.prompt_update_password_success), Toast.LENGTH_LONG).show();
+                startActivity(new Intent(MgrUpdatePasswordActivity.this, MgrLoginActivity.class));
                 finish();
             } else {
-//                mPasswordView.setError(getString(R.string.error_incorrect_password));
-//                mPasswordView.requestFocus();
+                Toast.makeText(MgrUpdatePasswordActivity.this, getString(R.string.prompt_update_password_success), Toast.LENGTH_LONG).show();
             }
         }
 
         @Override
         protected void onCancelled() {
-            mAuthTask = null;
+            mUpdatePasswordTask = null;
             showProgress(false);
         }
     }

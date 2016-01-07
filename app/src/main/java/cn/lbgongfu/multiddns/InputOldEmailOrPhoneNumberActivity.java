@@ -3,19 +3,17 @@ package cn.lbgongfu.multiddns;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.preference.PreferenceManager;
-import android.support.design.widget.TextInputLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -41,9 +39,9 @@ import cn.lbgongfu.multiddns.utils.VerifyUtil;
 /**
  * A login screen that offers login via email/password.
  */
-public class InputEmailOrPhoneNumberActivity extends AppCompatActivity {
-    private static final String TAG = InputEmailOrPhoneNumberActivity.class.getName();
+public class InputOldEmailOrPhoneNumberActivity extends AppCompatActivity {
 
+    private static final String TAG = InputOldEmailOrPhoneNumberActivity.class.getName();
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -51,44 +49,70 @@ public class InputEmailOrPhoneNumberActivity extends AppCompatActivity {
 
     // UI references.
     private RadioGroup mRadioGroupSymbols;
+    private RadioGroup mRadioGroupReceiveWays;
     private EditText mFieldId;
     private EditText mFieldAuthCode;
     private ImageView mImgAuthCode;
     private View mProgressView;
     private View mLoginFormView;
     private TextInputLayout mLayoutId;
-    private FetchImgAuthCodeTask mFetchImgAuthCodeTask;
-    private SharedPreferences preferences;
 
     private RegisterSymbol registerSymbol = RegisterSymbol.EMAIL;
     private AuthCodeReceiveWay receiveWay = AuthCodeReceiveWay.RECEIVE_BY_EMAIL;
+    private FetchImgAuthCodeTask mFetchImgAuthCodeTask;
+    private SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_input_email_or_phone_number);
+        setContentView(R.layout.activity_input_old_email_or_phone_number);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         registerSymbol = RegisterSymbol.valueOf(preferences.getString(getString(R.string.key_register_symbol), RegisterSymbol.EMAIL.toString()));
+        receiveWay = AuthCodeReceiveWay.valueOf(preferences.getString(getString(R.string.key_receive_way), AuthCodeReceiveWay.RECEIVE_BY_EMAIL.toString()));
 
         // Set up the login form.
         mRadioGroupSymbols = (RadioGroup) findViewById(R.id.radio_group_symbols);
-        mRadioGroupSymbols.check(registerSymbol == RegisterSymbol.EMAIL ? R.id.radio_email : R.id.radio_phone);
+        mRadioGroupSymbols.check(registerSymbol == RegisterSymbol.EMAIL ? R.id.radio_email
+                : registerSymbol == RegisterSymbol.PHONE ? R.id.radio_phone
+                : registerSymbol == RegisterSymbol.KCID ? R.id.radio_kcid
+                : registerSymbol == RegisterSymbol.USERNAME ? R.id.radio_username
+                : R.id.radio_email);
         mRadioGroupSymbols.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch (checkedId) {
                     case R.id.radio_email:
                         registerSymbol = RegisterSymbol.EMAIL;
-                        receiveWay = AuthCodeReceiveWay.RECEIVE_BY_EMAIL;
                         mLayoutId.setHint(getString(R.string.prompt_email));
                         break;
                     case R.id.radio_phone:
                         registerSymbol = RegisterSymbol.PHONE;
-                        receiveWay = AuthCodeReceiveWay.RECEIVE_BY_PHONE;
                         mLayoutId.setHint(getString(R.string.prompt_phone));
                         break;
+                    case R.id.radio_kcid:
+                        registerSymbol = RegisterSymbol.KCID;
+                        mLayoutId.setHint(getString(R.string.prompt_kcid));
+                        break;
+                    case R.id.radio_username:
+                        registerSymbol = RegisterSymbol.USERNAME;
+                        mLayoutId.setHint(getString(R.string.prompt_username_short));
+                        break;
                 }
+            }
+        });
+        mRadioGroupReceiveWays = (RadioGroup) findViewById(R.id.radio_group_receive_ways);
+        mRadioGroupReceiveWays.check(receiveWay == AuthCodeReceiveWay.RECEIVE_BY_EMAIL ? R.id.radio_receive_by_email
+                : receiveWay == AuthCodeReceiveWay.RECEIVE_BY_PHONE ? R.id.radio_receive_by_phone
+                : receiveWay == AuthCodeReceiveWay.RECEIVE_BY_EMAIL_AND_PHONE ? R.id.radio_receive_by_email_and_phone
+                : R.id.radio_receive_by_email);
+        mRadioGroupReceiveWays.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                receiveWay = checkedId == R.id.radio_receive_by_email ? AuthCodeReceiveWay.RECEIVE_BY_EMAIL
+                        : checkedId == R.id.radio_receive_by_phone ? AuthCodeReceiveWay.RECEIVE_BY_PHONE
+                        : checkedId == R.id.radio_receive_by_email_and_phone ? AuthCodeReceiveWay.RECEIVE_BY_EMAIL_AND_PHONE
+                        : AuthCodeReceiveWay.RECEIVE_BY_EMAIL;
             }
         });
         mFieldId = (EditText) findViewById(R.id.field_id);
@@ -105,8 +129,6 @@ public class InputEmailOrPhoneNumberActivity extends AppCompatActivity {
                 return false;
             }
         });
-        mImgAuthCode = (ImageView) findViewById(R.id.img_auth_code);
-
         Button mBtnGetAuthCode = (Button) findViewById(R.id.btn_get_auth_code);
         mBtnGetAuthCode.setOnClickListener(new OnClickListener() {
             @Override
@@ -123,17 +145,16 @@ public class InputEmailOrPhoneNumberActivity extends AppCompatActivity {
             }
         });
 
+        mImgAuthCode = (ImageView) findViewById(R.id.img_auth_code);
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
         fetchImgAuthCode();
     }
 
     private void fetchImgAuthCode() {
-        if (mFetchImgAuthCodeTask == null || mFetchImgAuthCodeTask.getStatus() == AsyncTask.Status.FINISHED)
-        {
+        if (mFetchImgAuthCodeTask == null || mFetchImgAuthCodeTask.getStatus() == AsyncTask.Status.FINISHED) {
             showProgress(true);
-            mFetchImgAuthCodeTask = new FetchImgAuthCodeTask(this, mImgAuthCode)
-            {
+            mFetchImgAuthCodeTask = new FetchImgAuthCodeTask(this, mImgAuthCode) {
                 @Override
                 protected void onCancelled() {
                     super.onCancelled();
@@ -161,6 +182,7 @@ public class InputEmailOrPhoneNumberActivity extends AppCompatActivity {
             return;
         }
 
+        // Reset errors.
         mFieldId.setError(null);
         mFieldAuthCode.setError(null);
 
@@ -171,12 +193,14 @@ public class InputEmailOrPhoneNumberActivity extends AppCompatActivity {
         boolean cancel = false;
         View focusView = null;
 
-        if (TextUtils.isEmpty(authCode)) {
+        if (TextUtils.isEmpty(authCode))
+        {
             mFieldAuthCode.setError(getString(R.string.error_field_required));
             focusView = mFieldAuthCode;
             cancel = true;
         }
 
+        // Check for a valid email address.
         if (TextUtils.isEmpty(id))
         {
             mFieldId.setError(getString(R.string.error_field_required));
@@ -197,8 +221,12 @@ public class InputEmailOrPhoneNumberActivity extends AppCompatActivity {
         }
 
         if (cancel) {
+            // There was an error; don't attempt login and focus the first
+            // form field with an error.
             focusView.requestFocus();
         } else {
+            // Show a progress spinner, and kick off a background task to
+            // perform the user login attempt.
             showProgress(true);
             mAuthTask = new UserLoginTask(id, authCode);
             mAuthTask.execute((Void) null);
@@ -248,45 +276,40 @@ public class InputEmailOrPhoneNumberActivity extends AppCompatActivity {
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String mId;
-        private final String mImgAuthCode;
-        private String errorMsg = "";
+        private final String mAuthCode;
+        private String result = "";
 
-        UserLoginTask(String id, String imgAuthCode) {
+        UserLoginTask(String id, String authCode) {
             mId = id;
-            mImgAuthCode = imgAuthCode;
+            mAuthCode = authCode;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            int kcid = MDDNS.GET_NEW_MANAGE_ID();
-            Log.d(TAG, String.format("Fetch KCID: %s", kcid));
-            Log.d(TAG, String.format("Call method(MDDNS.MAKE_FORGET_MAIL_SMS_VERIFY) with parameters (mailPhone=%s, authCode=%s)",
-                    mId, mImgAuthCode));
-            String result = MDDNS.MAKE_REGISTER_MAIL_SMS_VERIFY(mId, mImgAuthCode);
-            Log.d(TAG, String.format("method(MDDNS.MAKE_REGISTER_MAIL_SMS_VERIFY) return %s", result));
-            if ("ok".equals(result))
-                return true;
-            else
-                errorMsg = result;
-            return false;
+            Log.d(TAG, String.format("Call method(MDDNS.MAKE_FORGET_MAIL_SMS_VERIFY) with parameters (type=%s, smsMail=%s, account=%s, authCode=%s)",
+                    registerSymbol.toString(), receiveWay.toString(), mId, mAuthCode));
+            result = MDDNS.MAKE_FORGET_MAIL_SMS_VERIFY(registerSymbol.ordinal(), receiveWay.ordinal(), mId, mAuthCode);
+            Log.d(TAG, String.format("method(MDDNS.MAKE_FORGET_MAIL_SMS_VERIFY) return %s", result));
+            return "ok".equals(result);
         }
 
         @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
             showProgress(false);
+
             if (success) {
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putString(getString(R.string.key_id), mId);
                 editor.putString(getString(R.string.key_register_symbol), registerSymbol.toString());
+                editor.putString(getString(R.string.key_receive_way), receiveWay.toString());
                 editor.commit();
-
-                VerifyEmailOrPhoneNumberActivity.go(InputEmailOrPhoneNumberActivity.this, VerifyEmailOrPhoneNumberActivity.ACTION_REGISTER,
+                VerifyEmailOrPhoneNumberActivity.go(InputOldEmailOrPhoneNumberActivity.this, VerifyEmailOrPhoneNumberActivity.ACTION_RETRIEVE_PASSWORD,
                         registerSymbol, mId, receiveWay);
                 finish();
             } else {
-                Toast.makeText(InputEmailOrPhoneNumberActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
                 mFieldAuthCode.requestFocus();
+                Toast.makeText(InputOldEmailOrPhoneNumberActivity.this, result, Toast.LENGTH_LONG).show();
                 fetchImgAuthCode();
             }
         }

@@ -14,6 +14,8 @@ public class Domain {
     private String resolveInterval;
     private String redirectCheck;
     private String redirectURL;
+    //备案号
+    private String reference;
 
     public int getId() {
         return id;
@@ -95,6 +97,14 @@ public class Domain {
     public void setPassword(String password)
     {
         this.password = password;
+    }
+
+    public String getReference() {
+        return reference;
+    }
+
+    public void setReference(String reference) {
+        this.reference = reference;
     }
 
     @Override

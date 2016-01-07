@@ -15,15 +15,20 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ddns.sdk.MDDNS;
+
+import cn.lbgongfu.multiddns.utils.FetchImgAuthCodeTask;
 
 /**
  * A login screen that offers login via email/password.
@@ -34,7 +39,7 @@ public class MgrLoginActivity extends AppCompatActivity {
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
-    private AsyncTask mFetchImgAuthTask = null;
+    private FetchImgAuthCodeTask mFetchImgAuthCodeTask = null;
 
     // UI references.
     private EditText mFieldId;
@@ -54,13 +59,21 @@ public class MgrLoginActivity extends AppCompatActivity {
 
         // Set up the login form.
         mFieldId = (EditText) findViewById(R.id.field_id);
-        mFieldId.setText(preferences.getString(getString(R.string.key_mgr_id), ""));
+        mFieldId.setText(preferences.getString(getString(R.string.key_id), ""));
         mFieldPassword = (EditText) findViewById(R.id.field_password);
         if (preferences.getBoolean(getString(R.string.key_remember_password), false))
             mFieldPassword.setText(preferences.getString(getString(R.string.key_mgr_password), ""));
         mFieldAuthCode = (EditText) findViewById(R.id.field_auth_code);
-        mImgAuthCode = (ImageView) findViewById(R.id.img_auth_code);
-        fetchImgAuthCode();
+        mFieldAuthCode.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+                if (id == R.id.next_step || id == EditorInfo.IME_NULL) {
+                    attemptLogin();
+                    return true;
+                }
+                return false;
+            }
+        });
 
         Button mBtnGetAuthCode = (Button) findViewById(R.id.btn_get_auth_code);
         mBtnGetAuthCode.setOnClickListener(new OnClickListener() {
@@ -82,7 +95,6 @@ public class MgrLoginActivity extends AppCompatActivity {
         mBtnRegister.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                InputEmailOrPhoneNumberActivity.register = true;
                 startActivity(new Intent(MgrLoginActivity.this, InputEmailOrPhoneNumberActivity.class));
                 finish();
             }
@@ -92,14 +104,15 @@ public class MgrLoginActivity extends AppCompatActivity {
         mBtnForgetPassword.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                InputEmailOrPhoneNumberActivity.register = false;
-                startActivity(new Intent(MgrLoginActivity.this, InputEmailOrPhoneNumberActivity.class));
+                startActivity(new Intent(MgrLoginActivity.this, InputOldEmailOrPhoneNumberActivity.class));
                 finish();
             }
         });
 
+        mImgAuthCode = (ImageView) findViewById(R.id.img_auth_code);
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+        fetchImgAuthCode();
     }
 
     @Override
@@ -121,29 +134,24 @@ public class MgrLoginActivity extends AppCompatActivity {
     }
 
     private void fetchImgAuthCode() {
-        if (mFetchImgAuthTask == null || mFetchImgAuthTask.getStatus() == AsyncTask.Status.FINISHED)
+        if (mFetchImgAuthCodeTask == null || mFetchImgAuthCodeTask.getStatus() == AsyncTask.Status.FINISHED)
         {
-            mFetchImgAuthTask = new AsyncTask<Void, Void, Drawable>()
-            {
-                @Override
-                protected Drawable doInBackground(Void... params) {
-                    String imagePath = MDDNS.READ_VERIFY_CODE_FILE();
-                    Log.d(TAG, "Image auth code path is " + imagePath);
-                    Drawable drawable = BitmapDrawable.createFromPath(imagePath);
-                    return drawable;
-                }
-
-                @Override
-                protected void onPostExecute(Drawable drawable) {
-                    if (drawable != null)
-                        mImgAuthCode.setImageDrawable(drawable);
-                }
-
+            showProgress(true);
+            mFetchImgAuthCodeTask = new FetchImgAuthCodeTask(this, mImgAuthCode) {
                 @Override
                 protected void onCancelled() {
-                    mFetchImgAuthTask = null;
+                    super.onCancelled();
+                    mFetchImgAuthCodeTask = null;
+                    showProgress(false);
                 }
-            }.execute((Void)null);
+
+                @Override
+                protected void onPostExecute(Boolean success) {
+                    super.onPostExecute(success);
+                    mFetchImgAuthCodeTask = null;
+                    showProgress(false);
+                }
+            };
         }
     }
 
@@ -285,6 +293,7 @@ public class MgrLoginActivity extends AppCompatActivity {
                 finish();
             } else {
                 Toast.makeText(MgrLoginActivity.this, getString(R.string.error_login) + "\n" + mErrorMsg, Toast.LENGTH_SHORT).show();
+                fetchImgAuthCode();
             }
         }
 

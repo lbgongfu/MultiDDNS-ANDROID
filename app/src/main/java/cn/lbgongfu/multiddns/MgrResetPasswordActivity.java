@@ -7,30 +7,23 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import com.ddns.sdk.MDDNS;
 
 /**
  * A login screen that offers login via email/password.
  */
 public class MgrResetPasswordActivity extends AppCompatActivity {
 
-    /**
-     * Id to identity READ_CONTACTS permission request.
-     */
-    private static final int REQUEST_READ_CONTACTS = 0;
-
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
+    private static final String TAG = MgrResetPasswordActivity.class.getName();
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -72,34 +65,36 @@ public class MgrResetPasswordActivity extends AppCompatActivity {
             return;
         }
 
-        // Reset errors.
-//        mEmailView.setError(null);
-//        mPasswordView.setError(null);
+        mFieldPassword.setError(null);
+        mFieldPassword2.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mFieldPassword.getText().toString();
-        String password = mFieldPassword2.getText().toString();
+        String password = mFieldPassword.getText().toString();
+        String password2 = mFieldPassword2.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
-//        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-//            mPasswordView.setError(getString(R.string.error_invalid_password));
-//            focusView = mPasswordView;
-//            cancel = true;
-//        }
+        if (TextUtils.isEmpty(password))
+        {
+            mFieldPassword.setError(getString(R.string.error_field_required));
+            focusView = mFieldPassword;
+            cancel = true;
+        }
 
-        // Check for a valid email address.
-//        if (TextUtils.isEmpty(email)) {
-//            mEmailView.setError(getString(R.string.error_field_required));
-//            focusView = mEmailView;
-//            cancel = true;
-//        } else if (!isEmailValid(email)) {
-//            mEmailView.setError(getString(R.string.error_invalid_email));
-//            focusView = mEmailView;
-//            cancel = true;
-//        }
+        if (TextUtils.isEmpty(password2))
+        {
+            mFieldPassword2.setError(getString(R.string.error_field_required));
+            focusView = mFieldPassword2;
+            cancel = true;
+        }
+
+        if (!cancel && !password.equals(password2))
+        {
+            mFieldPassword2.setError(getString(R.string.error_password_inconformity));
+            cancel = true;
+            focusView = mFieldPassword2;
+        }
 
         if (cancel) {
             // There was an error; don't attempt login and focus the first
@@ -109,19 +104,9 @@ public class MgrResetPasswordActivity extends AppCompatActivity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginTask(password);
             mAuthTask.execute((Void) null);
         }
-    }
-
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
     }
 
     /**
@@ -160,50 +145,24 @@ public class MgrResetPasswordActivity extends AppCompatActivity {
         }
     }
 
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
-    }
-
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final String mEmail;
         private final String mPassword;
+        private String result;
 
-        UserLoginTask(String email, String password) {
-            mEmail = email;
+        UserLoginTask(String password) {
             mPassword = password;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
+            Log.d(TAG, String.format("Call method(MDDNS.RESET_MANAGE_PASSWORD) with parameters (password=%s)", mPassword));
+            result = MDDNS.RESET_MANAGE_PASSWORD(mPassword);
+            Log.d(TAG, String.format("method(MDDNS.RESET_MANAGE_PASSWORD) return %s", result));
             return true;
         }
 
@@ -213,11 +172,11 @@ public class MgrResetPasswordActivity extends AppCompatActivity {
             showProgress(false);
 
             if (success) {
+                Toast.makeText(MgrResetPasswordActivity.this, getString(R.string.prompt_password_reset_success), Toast.LENGTH_LONG).show();
                 startActivity(new Intent(MgrResetPasswordActivity.this, MgrLoginActivity.class));
                 finish();
             } else {
-//                mPasswordView.setError(getString(R.string.error_incorrect_password));
-//                mPasswordView.requestFocus();
+                Toast.makeText(MgrResetPasswordActivity.this, result, Toast.LENGTH_LONG).show();
             }
         }
 

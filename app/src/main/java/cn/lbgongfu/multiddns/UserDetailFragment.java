@@ -90,6 +90,7 @@ public class UserDetailFragment extends Fragment {
             TextView mTextResolveInterval = (TextView) rootView.findViewById(R.id.text_resolve_interval);
             TextView mTextRedirectCheck = (TextView) rootView.findViewById(R.id.text_redirect_check);
             TextView mTextRedirectURL = (TextView) rootView.findViewById(R.id.text_redirect_url);
+            TextView mTextReference = (TextView) rootView.findViewById(R.id.text_reference);
 
             mTextDomain.setText(mDomain.getDomain());
             mTextPassword.setText(mDomain.getPassword());
@@ -100,6 +101,7 @@ public class UserDetailFragment extends Fragment {
             mTextResolveInterval.setText(mDomain.getResolveInterval());
             mTextRedirectCheck.setText(mDomain.getRedirectCheck());
             mTextRedirectURL.setText(mDomain.getRedirectURL());
+            mTextReference.setText(mDomain.getReference());
         }
         return rootView;
     }

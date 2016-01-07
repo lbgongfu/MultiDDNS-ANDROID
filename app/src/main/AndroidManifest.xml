@@ -31,7 +31,7 @@
         </activity>
         <activity
             android:name=".InputEmailOrPhoneNumberActivity"
-            android:label="@string/title_activity_mgr_register_step_1" >
+            android:label="@string/title_activity_input_email_or_phone_number" >
         </activity>
         <activity
             android:name=".VerifyEmailOrPhoneNumberActivity"
@@ -132,6 +132,10 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" >
+        </activity>
+        <activity
+            android:name=".InputOldEmailOrPhoneNumberActivity"
+            android:label="@string/title_activity_input_old_email_or_phone_number" >
         </activity>
     </application>
 

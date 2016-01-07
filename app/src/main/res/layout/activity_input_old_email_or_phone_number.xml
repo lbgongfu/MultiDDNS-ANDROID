@@ -5,7 +5,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="cn.lbgongfu.multiddns.InputEmailOrPhoneNumberActivity">
+    tools:context="cn.lbgongfu.multiddns.InputOldEmailOrPhoneNumberActivity">
 
     <!-- Login progress -->
     <ProgressBar android:id="@+id/login_progress" style="?android:attr/progressBarStyleLarge"
@@ -37,13 +37,50 @@
                     android:text="@string/label_mobile"
                     android:id="@+id/radio_phone" />
 
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_kcid"
+                    android:id="@+id/radio_kcid" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_username"
+                    android:id="@+id/radio_username" />
+            </RadioGroup>
+
+            <RadioGroup
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:id="@+id/radio_group_receive_ways">
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_receive_by_email"
+                    android:id="@+id/radio_receive_by_email"
+                    android:checked="true" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_receive_by_phone"
+                    android:id="@+id/radio_receive_by_phone" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_receive_by_email_and_phone"
+                    android:id="@+id/radio_receive_by_email_and_phone" />
             </RadioGroup>
 
             <android.support.design.widget.TextInputLayout android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/text_input_layout_id">
 
-                <AutoCompleteTextView android:id="@+id/field_id" android:layout_width="match_parent"
+                <EditText android:id="@+id/field_id" android:layout_width="match_parent"
                     android:layout_height="wrap_content" android:hint="@string/prompt_email"
                     android:inputType="textEmailAddress" android:maxLines="1"
                     android:singleLine="true" />
@@ -61,11 +98,10 @@
                     <EditText android:id="@+id/field_auth_code" android:layout_width="match_parent"
                         android:layout_height="wrap_content" android:hint="@string/prompt_auth_code"
                         android:imeActionId="@+id/next_step"
-                        android:imeActionLabel="@string/action_next"
+                        android:imeActionLabel="@string/action_next_step"
                         android:imeOptions="actionUnspecified" android:inputType="text"
-                        android:maxLines="1" android:singleLine="true"
                         android:ems="@integer/field_auth_code_ems"
-                        android:width="@dimen/field_auth_code_width" />
+                        android:maxLines="1" android:singleLine="true" />
 
                 </android.support.design.widget.TextInputLayout>
 

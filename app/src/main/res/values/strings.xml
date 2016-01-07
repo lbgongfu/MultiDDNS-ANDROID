@@ -2,6 +2,7 @@
     <string name="app_name">MultiDDNS</string>
     
     <!-- Strings related to login -->
+    <string name="prompt_username_short">用户名</string>
     <string name="prompt_username">用户名（如：ddns.ip71.cn）</string>
     <string name="prompt_password">密码</string>
     <string name="prompt_mgr_email">管理员邮箱</string>
@@ -12,7 +13,7 @@
     <string name="action_update_password">修改密码</string>
     <string name="action_recharge">充值</string>
     <string name="action_quit">退出</string>
-    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_email">无效邮箱</string>
     <string name="error_invalid_id">用户名无效</string>
     <string name="error_invalid_password">请输入密码</string>
     <string name="error_incorrect_password">密码不正确</string>
@@ -37,7 +38,7 @@
     <string name="title_exit">退出程序</string>
 
     <!-- Strings related to login -->
-    <string name="prompt_email">Email</string>
+    <string name="prompt_email">邮箱</string>
     <string name="prompt_id">邮箱/手机</string>
     <string name="action_get_phone_auth_code">获取验证码</string>
     <string name="action_next_step">下一步</string>
@@ -55,10 +56,10 @@
     <string name="menu_setting">设置</string>
     <string name="action_mgr_info">管理员信息</string>
     <string name="action_goto_check">去审核</string>
-    <string name="label_username">用户名：</string>
-    <string name="label_domain">域名：</string>
-    <string name="label_password">密码：</string>
-    <string name="lable_auth_code">验证码：</string>
+    <string name="label_username">用户名</string>
+    <string name="label_domain">域名</string>
+    <string name="label_password">密码</string>
+    <string name="lable_auth_code">验证码</string>
     <string name="action_save_user">保存</string>
     <string name="title_activity_add_user">添加用户</string>
     <string name="title_activity_select_domain">选择域名</string>
@@ -188,4 +189,24 @@
     <string name="action_start_resolve_domain">启动域名解析</string>
     <string name="label_ip">当前IP：</string>
     <string name="title_activity_login">Sign in</string>
+    <string name="action_next">下一步</string>
+    <string name="error_invalid_email_or_phone_number">不是有效的邮箱或手机</string>
+    <string name="title_activity_input_email_or_phone_number">填写邮箱或手机号码</string>
+    <string name="title_activity_input_email_or_phone_number_or_kcid_or_username">填写注册时使用的邮箱或手机号或KCID或用户名</string>
+    <string name="key_id">key_id</string>
+    <string name="prompt_phone">手机</string>
+    <string name="prompt_kcid">KCID</string>
+    <string name="label_receive_by_email">邮箱接收</string>
+    <string name="label_receive_by_phone">手机接收</string>
+    <string name="label_receive_by_email_and_phone">邮箱手机同时接收</string>
+    <string name="title_activity_input_old_email_or_phone_number">填写与该账号绑定的邮箱或手机号码或KCID或用户名</string>
+    <string name="error_invalid_phone_number">无效手机号码</string>
+    <string name="error_password_inconformity">两次输入的密码不一致</string>
+    <string name="user_detail_label_reference">备案号</string>
+    <string name="key_register_symbol">key_register_symbol</string>
+    <string name="key_receive_way">key_receive_way</string>
+    <string name="prompt_password_reset_success">密码重置成功，跳至登陆界面</string>
+    <string name="error_undifined">未知错误</string>
+    <string name="prompt_register_success">注册成功，可以登录系统了</string>
+    <string name="prompt_update_password_success">密码修改成功，请重新登陆</string>
 </resources>
